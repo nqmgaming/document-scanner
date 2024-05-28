@@ -16,32 +16,24 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions.RESULT_FORMAT_JPEG
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions.RESULT_FORMAT_PDF
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions.SCANNER_MODE_FULL
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
 import com.nqmgaming.documentscanner.ui.theme.DocumentScannerTheme
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.semantics.Role.Companion.Button
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -79,12 +71,12 @@ class MainActivity : ComponentActivity() {
                                 )
 
                                 if (result != null) {
-                                    images = (result?.pages?.map {
+                                    images = (result.pages?.map {
                                         it.imageUri
                                     } ?: emptyList())
 
                                     // Save the images to the app's directory
-                                    val files = images.map { uri ->
+                                  images.map { uri ->
                                         val file = File(filesDir, uri.lastPathSegment!!)
                                         val inputStream = contentResolver.openInputStream(uri)
                                         val outputStream = FileOutputStream(file)
@@ -92,7 +84,7 @@ class MainActivity : ComponentActivity() {
                                         file
                                     }
 
-                                    contentResolver.openInputStream(result?.pdf?.uri!!)
+                                    contentResolver.openInputStream(result.pdf?.uri!!)
                                         ?.use { inputStream ->
                                             val outputStream =
                                                 FileOutputStream(File(filesDir, "document.pdf"))
