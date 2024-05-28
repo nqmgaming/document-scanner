@@ -72,30 +72,48 @@ class MainActivity : ComponentActivity() {
                 val scannerLauncher = rememberLauncherForActivityResult(
                     contract = ActivityResultContracts.StartIntentSenderForResult(),
                     onResult = { activityResult ->
-                        if (activityResult.resultCode == RESULT_OK) {
-                            val result = GmsDocumentScanningResult.fromActivityResultIntent(
-                                activityResult.data!!
-                            )
-                            images = (result?.pages?.map {
-                                it.imageUri
-                            } ?: emptyList())
+                        try {
+                            if (activityResult.resultCode == RESULT_OK && activityResult.data != null) {
+                                val result = GmsDocumentScanningResult.fromActivityResultIntent(
+                                    activityResult.data!!
+                                )
 
-                            // Save the images to the app's directory
-                            val files = images.map { uri ->
-                                val file = File(filesDir, uri.lastPathSegment!!)
-                                val inputStream = contentResolver.openInputStream(uri)
-                                val outputStream = FileOutputStream(file)
-                                inputStream?.copyTo(outputStream)
-                                file
-                            }
+                                if (result != null) {
+                                    images = (result?.pages?.map {
+                                        it.imageUri
+                                    } ?: emptyList())
 
-                            contentResolver.openInputStream(result?.pdf?.uri!!)
-                                ?.use { inputStream ->
-                                    val outputStream =
-                                        FileOutputStream(File(filesDir, "document.pdf"))
-                                    inputStream.copyTo(outputStream)
+                                    // Save the images to the app's directory
+                                    val files = images.map { uri ->
+                                        val file = File(filesDir, uri.lastPathSegment!!)
+                                        val inputStream = contentResolver.openInputStream(uri)
+                                        val outputStream = FileOutputStream(file)
+                                        inputStream?.copyTo(outputStream)
+                                        file
+                                    }
+
+                                    contentResolver.openInputStream(result?.pdf?.uri!!)
+                                        ?.use { inputStream ->
+                                            val outputStream =
+                                                FileOutputStream(File(filesDir, "document.pdf"))
+                                            inputStream.copyTo(outputStream)
+                                        }
+                                } else {
+                                    Toast.makeText(
+                                        this@MainActivity,
+                                        "Failed to get result",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
 
+                            }
+
+                        }catch (e: Exception) {
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Error handling result: ${e.message}",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
                 )
@@ -150,8 +168,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding)
-                            .verticalScroll(rememberScrollState())
-                        ,
+                            .verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
