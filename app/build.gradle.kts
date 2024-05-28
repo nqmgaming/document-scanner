@@ -73,5 +73,5 @@ dependencies {
     // Coil
     implementation(libs.coil.compose)
 
-    implementation ("androidx.work:work-runtime:2.9.0")
+    implementation (libs.androidx.work.runtime)
 }
